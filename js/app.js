@@ -20,12 +20,39 @@
   var vantaEffect = null;
 
   /**
-   * Vanta CLOUDS2 declares iMouse but never uses it in the fragment shader, so
-   * mouseControls / touchControls do nothing. We add a light parallax on .cloud-layer instead.
+   * Live-tune in DevTools: SKY_PARALLAX.kx = 0.12; SKY_PARALLAX.maxPxX = 80;
+   * Parallax ignores OS reduce-motion unless SKY_PARALLAX.respectReducedMotion === true.
+   */
+  window.SKY_PARALLAX = {
+    kx: -0.04,
+    ky: -0.008,
+    maxPxX: 100,
+    maxPxY: 6,
+    lerpX: 0.2,
+    lerpY: 0.1,
+    layerScale: 1.06,
+    /* Set true to skip parallax when OS "reduce motion" is on */
+    respectReducedMotion: false,
+  };
+
+  /**
+   * Vanta CLOUDS2 ignores iMouse in its shader; we pan .cloud-layer with translate3d.
+   * Pointer position vs viewport center drives target offset (horizontal-heavy).
    */
   function initCloudLayerParallax() {
     var layer = document.querySelector(".cloud-layer");
-    if (!layer || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (!layer) {
+      console.warn("[Sky Media Lab] Cloud parallax: no .cloud-layer");
+      return;
+    }
+    var cfg = window.SKY_PARALLAX;
+    if (
+      cfg.respectReducedMotion &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      console.warn(
+        "[Sky Media Lab] Cloud parallax off (respectReducedMotion + prefers-reduced-motion)"
+      );
       return;
     }
     var curX = 0;
@@ -33,18 +60,19 @@
     var tgtX = 0;
     var tgtY = 0;
     var rafId = null;
-    var maxPx = 16;
-    var k = 0.02;
 
     function tick() {
-      curX += (tgtX - curX) * 0.1;
-      curY += (tgtY - curY) * 0.1;
+      curX += (tgtX - curX) * cfg.lerpX;
+      curY += (tgtY - curY) * cfg.lerpY;
+      var sc = typeof cfg.layerScale === "number" ? cfg.layerScale : 1.06;
       layer.style.transform =
         "translate3d(" +
         curX.toFixed(2) +
         "px," +
         curY.toFixed(2) +
-        "px,0) scale(1.06)";
+        "px,0) scale(" +
+        sc +
+        ")";
       if (Math.abs(tgtX - curX) > 0.04 || Math.abs(tgtY - curY) > 0.04) {
         rafId = requestAnimationFrame(tick);
       } else {
@@ -61,20 +89,25 @@
     function setFromClient(clientX, clientY) {
       var cx = window.innerWidth * 0.5;
       var cy = window.innerHeight * 0.5;
-      var nx = (clientX - cx) * k;
-      var ny = (clientY - cy) * k;
-      tgtX = Math.max(-maxPx, Math.min(maxPx, nx));
-      tgtY = Math.max(-maxPx, Math.min(maxPx, ny));
+      var kx = typeof cfg.kx === "number" ? cfg.kx : 0.055;
+      var ky = typeof cfg.ky === "number" ? cfg.ky : 0.008;
+      var maxX = typeof cfg.maxPxX === "number" ? cfg.maxPxX : 48;
+      var maxY = typeof cfg.maxPxY === "number" ? cfg.maxPxY : 6;
+      var nx = (clientX - cx) * kx;
+      var ny = (clientY - cy) * ky;
+      tgtX = Math.max(-maxX, Math.min(maxX, nx));
+      tgtY = Math.max(-maxY, Math.min(maxY, ny));
       queue();
     }
 
-    window.addEventListener(
-      "pointermove",
-      function (e) {
-        setFromClient(e.clientX, e.clientY);
-      },
-      { passive: true }
-    );
+    var move = function (e) {
+      setFromClient(e.clientX, e.clientY);
+    };
+    if (typeof window.PointerEvent === "function") {
+      window.addEventListener("pointermove", move, { passive: true });
+    } else {
+      window.addEventListener("mousemove", move, { passive: true });
+    }
   }
 
   function initVantaOnce() {
@@ -91,7 +124,7 @@
         minHeight: 200.0,
         minWidth: 200.0,
         scale: 1,
-        speed: 0.8,
+        speed: 0.7,
         texturePath: texturePath,
         backgroundColor: 0x619cd7,
         skyColor: 0x619cd7,
