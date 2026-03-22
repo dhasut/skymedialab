@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en" class="glass-variant-liquid">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sky Media Lab</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" sizes="any">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;1,9..40,400&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <script>
+    (function () {
+      var ua = navigator.userAgent;
+      var isChromeWin =
+        /Windows/.test(ua) &&
+        /Chrome\/\d/.test(ua) &&
+        !/Edg\//.test(ua) &&
+        !/OPR\//.test(ua);
+      if (!isChromeWin) {
+        return;
+      }
+      var root = document.documentElement;
+      root.classList.remove("glass-variant-liquid");
+      root.classList.add("glass-variant-simple");
+    })();
+  </script>
+</head>
+<body>
+  <div class="cloud-layer" aria-hidden="true">
+    <div class="s-page-1">
+      <div class="s-section-1">
+        <div class="s-section hero-clouds" id="vanta-clouds"></div>
+      </div>
+    </div>
+  </div>
+
+  <header class="site-header" id="site-header">
+    <a href="#/" class="logo">
+      <img
+        class="logo__img"
+        src="images/logo-skymedialab-landscape.svg"
+        alt="Sky Media Lab"
+        width="1540"
+        height="141"
+        decoding="async"
+      >
+    </a>
+    <nav class="site-nav site-nav--desktop" aria-label="Main">
+      <a href="#/about">About</a>
+      <details class="nav-dropdown">
+        <summary class="nav-dropdown__summary">
+          <span class="nav-dropdown__summary-text">Projects</span>
+          <span class="nav-dropdown__caret" aria-hidden="true"></span>
+        </summary>
+        <div class="nav-dropdown__panel" role="group" aria-label="Projects">
+          <a href="#/projects" class="nav-dropdown__item">All projects</a>
+          <a href="#/projects/dictio" class="nav-dropdown__item">Dictio</a>
+        </div>
+      </details>
+      <a href="#/contact">Contact</a>
+    </nav>
+    <button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="site-drawer" aria-label="Open menu">
+      <span class="nav-toggle__bar" aria-hidden="true"></span>
+      <span class="nav-toggle__bar" aria-hidden="true"></span>
+      <span class="nav-toggle__bar" aria-hidden="true"></span>
+    </button>
+    <div class="nav-backdrop" id="nav-backdrop" aria-hidden="true"></div>
+    <aside id="site-drawer" class="site-drawer" aria-label="Main navigation" aria-hidden="true">
+      <nav class="site-drawer__nav">
+        <a href="#/about" class="site-drawer__link">About</a>
+        <div class="site-drawer__group">
+          <span class="site-drawer__group-label" id="drawer-projects-label">Projects</span>
+          <div class="site-drawer__sub" role="group" aria-labelledby="drawer-projects-label">
+            <a href="#/projects" class="site-drawer__sublink">All projects</a>
+            <a href="#/projects/dictio" class="site-drawer__sublink">Dictio</a>
+          </div>
+        </div>
+        <a href="#/contact" class="site-drawer__link">Contact</a>
+      </nav>
+    </aside>
+  </header>
+
+  <main id="stage" class="stage">
+    <div id="view-home" class="view view--active" aria-hidden="false">
+      <div class="home-scroll">
+        <section id="section-about" class="panel panel--about">
+          <div class="panel__inner">
+            <h1 class="visually-hidden">Sky Media Lab</h1>
+            <div class="panel-brand">
+              <img
+                class="panel-brand__logo"
+                src="images/logo-skymedialab-portrait.svg"
+                alt=""
+                width="611"
+                height="442"
+                decoding="async"
+              >
+            </div>
+            <p class="section-intro">
+              We build thoughtful reading and media experiences—apps that respect focus, accessibility, and how people actually use the web.
+            </p>
+            <a class="btn" href="#/projects">View projects</a>
+          </div>
+        </section>
+
+        <section id="section-projects" class="panel panel--projects">
+          <div class="panel__inner">
+            <h2>Projects</h2>
+            <p class="section-intro">Selected work and products from the lab.</p>
+            <article class="project-card">
+              <div class="project-card__row">
+                <div class="app-icon-frame app-icon-frame--card">
+                  <img src="images/dictio-icon.png" alt="" width="512" height="512" decoding="async">
+                </div>
+                <div class="project-card__body">
+                  <h3>Dictio</h3>
+                  <p>Cross-platform reading with article extraction, sentence-aware playback, and multiple TTS engines.</p>
+                  <a class="btn btn--ghost" href="#/projects/dictio">Open project</a>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section id="section-contact" class="panel panel--contact">
+          <div class="panel__inner">
+            <div class="panel-brand">
+              <img
+                class="panel-brand__logo"
+                src="images/logo-skymedialab-portrait.svg"
+                alt="Sky Media Lab"
+                width="611"
+                height="442"
+                decoding="async"
+              >
+            </div>
+            <h2 class="panel-section__title">Contact</h2>
+            <p class="section-intro">Reach out if you have a project or collaboration in mind.</p>
+            <a class="btn" href="mailto:hello@skymedialab.com.au">Get in Touch</a>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div id="view-dictio" class="view view--project" hidden aria-hidden="true">
+      <div class="project-scroll">
+        <a class="back-link" href="#/projects">← Projects</a>
+        <article class="project-detail">
+          <div class="project-detail__hero">
+            <div class="app-icon-frame">
+              <img src="images/dictio-icon.png" alt="" width="512" height="512" decoding="async">
+            </div>
+            <div class="project-detail__hero-text">
+              <p class="eyebrow">Product</p>
+              <h1>Dictio</h1>
+            </div>
+          </div>
+          <p class="lead">
+            Dictio is a cross-platform reading and text-to-speech app. It loads a URL in an embedded browser, extracts readable article text, splits it into sentences and paragraphs, and plays speech from the start or from any sentence you select.
+          </p>
+
+          <h2>What it does</h2>
+          <ul class="feature-list">
+            <li>Loads a URL in an embedded browser view</li>
+            <li>Extracts readable article text from the page</li>
+            <li>Structures content into sentences and paragraphs</li>
+            <li>Tap-to-speak from any sentence</li>
+            <li>Multiple TTS engines: native OS TTS, Kokoro ONNX, and Supertonic ONNX</li>
+            <li>Translation from Chinese to English using on device translation</li>
+          </ul>
+          <h2>App stores</h2>
+          <p class="store-coming-soon">
+            <span class="store-badge">App Store — coming soon</span>
+            <span class="store-badge">Google Play — coming soon</span>
+          </p>
+        </article>
+      </div>
+    </div>
+  </main>
+
+  <script src="vendor/three.min.js"></script>
+  <script src="vendor/vanta.clouds2.min.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
