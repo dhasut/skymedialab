@@ -462,6 +462,47 @@ body.menu-open .site-drawer {
   body.menu-open {
     overflow: hidden;
   }
+
+  /* Section padding −20%; body copy −30% (all home + project panels) */
+  .panel {
+    padding: 3.2rem 2.4rem 4.8rem;
+  }
+
+  .panel__inner {
+    padding: 2.8rem 2.4rem;
+  }
+
+  .project-scroll {
+    padding: 2.4rem 2.4rem 4.8rem;
+  }
+
+  .project-detail {
+    padding: 2.8rem 2.4rem;
+  }
+
+  .section-intro,
+  .project-card p,
+  .feature-list,
+  .project-detail .feature-list {
+    font-size: 70%;
+  }
+
+  .lead,
+  .project-detail .lead {
+    font-size: calc(1.05rem * 0.7);
+  }
+
+  .hint {
+    font-size: calc(0.8rem * 0.7);
+  }
+
+  .back-link {
+    font-size: calc(0.9rem * 0.7);
+  }
+
+  .store-badge {
+    font-size: calc(0.88rem * 0.7);
+  }
 }
 
 .stage {
@@ -928,11 +969,19 @@ html.glass-variant-liquid .project-detail::before {
 
 @media (max-width: 520px) {
   .panel {
-    padding: 3rem 2rem 5rem;
+    padding: 2.56rem 1.92rem 3.84rem;
   }
 
   .panel__inner {
-    padding: 2.7rem 2.3rem;
+    padding: 2.24rem 1.92rem;
+  }
+
+  .project-scroll {
+    padding: 1.92rem 1.92rem 3.84rem;
+  }
+
+  .project-detail {
+    padding: 2.24rem 1.92rem;
   }
 
   .panel-brand__logo {

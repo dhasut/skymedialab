@@ -110,6 +110,63 @@
     }
   }
 
+  /**
+   * Drawing buffer = ⅓ of layout (CSS) width/height — not × devicePixelRatio.
+   * Vanta keeps a stale window.resize + rAF(ref) to the *original* resize, which
+   * resets the canvas to layout×DPR (e.g. 1290×2796). We re-apply after that.
+   */
+  function setupVantaThirdResolution(effect) {
+    if (!effect || typeof effect.resize !== "function" || !effect.renderer || !vantaEl) {
+      return;
+    }
+    var originalResize = effect.resize.bind(effect);
+
+    function applyThirdBuffer() {
+      if (!effect.renderer) {
+        return;
+      }
+      effect.setSize();
+      var rect = vantaEl.getBoundingClientRect();
+      var vw = Math.max(1, Math.round(rect.width));
+      var vh = Math.max(1, Math.round(rect.height));
+      var bufW = Math.max(32, Math.round(vw / 3));
+      var bufH = Math.max(32, Math.round(vh / 3));
+      if (effect.camera) {
+        effect.camera.aspect = vw / vh;
+        if (typeof effect.camera.updateProjectionMatrix === "function") {
+          effect.camera.updateProjectionMatrix();
+        }
+      }
+      effect.renderer.setPixelRatio(1);
+      effect.renderer.setSize(bufW, bufH, false);
+      var canvas = effect.renderer.domElement;
+      canvas.style.width = "100%";
+      canvas.style.height = "100%";
+      var sc = effect.scale || 1;
+      if (effect.uniforms && effect.uniforms.iResolution) {
+        effect.uniforms.iResolution.value.x = bufW / sc;
+        effect.uniforms.iResolution.value.y = bufH / sc;
+      }
+    }
+
+    effect.resize = function () {
+      if (!effect.renderer) {
+        originalResize();
+        return;
+      }
+      originalResize();
+      applyThirdBuffer();
+    };
+
+    function afterVantaDefaultResize() {
+      applyThirdBuffer();
+    }
+
+    effect.resize();
+    requestAnimationFrame(afterVantaDefaultResize);
+    window.addEventListener("resize", afterVantaDefaultResize, { passive: true });
+  }
+
   function initVantaOnce() {
     if (vantaEffect || !vantaEl || !window.VANTA || typeof window.VANTA.CLOUDS2 !== "function") {
       return;
@@ -121,14 +178,16 @@
         mouseControls: false,
         touchControls: false,
         gyroControls: false,
-        minHeight: 200.0,
-        minWidth: 200.0,
+        minHeight: 300.0,
+        minWidth: 150.0,
         scale: 1,
+        scaleMobile: 1,
         speed: 0.7,
         texturePath: texturePath,
         backgroundColor: 0x619cd7,
         skyColor: 0x619cd7,
       });
+      setupVantaThirdResolution(vantaEffect);
       if (window.visualViewport) {
         window.visualViewport.addEventListener(
           "resize",
