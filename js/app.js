@@ -19,6 +19,10 @@
 
   var vantaEffect = null;
 
+  /** True while hash-driven scroll is running (avoid fighting URL sync). */
+  var programmaticHomeScroll = false;
+  var homeScrollHashTimer = null;
+
   /**
    * Live-tune in DevTools: SKY_PARALLAX.kx = 0.12; SKY_PARALLAX.maxPxX = 80;
    * Parallax ignores OS reduce-motion unless SKY_PARALLAX.respectReducedMotion === true.
@@ -231,19 +235,142 @@
     }
     var target = document.getElementById(id);
     if (target) {
+      programmaticHomeScroll = true;
       target.scrollIntoView({ behavior: "smooth", block: "start" });
+      window.setTimeout(function () {
+        programmaticHomeScroll = false;
+        syncHomeUrlAndLogoFromScroll();
+      }, 550);
     }
   }
 
+  /** Canonical home hash for comparison (about includes default `#/`). */
+  function homeRouteToHashString(route) {
+    if (!route || route.name !== "home") {
+      return null;
+    }
+    if (route.scroll === "section-projects") {
+      return "#/projects";
+    }
+    if (route.scroll === "section-contact") {
+      return "#/contact";
+    }
+    return "#/about";
+  }
+
+  function homeSectionIdToHash(id) {
+    if (id === "section-projects") {
+      return "#/projects";
+    }
+    if (id === "section-contact") {
+      return "#/contact";
+    }
+    return "#/about";
+  }
+
+  /** Y-offset of element top within .home-scroll content (matches scrollTop space). */
+  function sectionTopInHomeScroll(el) {
+    if (!homeScroll || !el) {
+      return 0;
+    }
+    return (
+      el.getBoundingClientRect().top -
+      homeScroll.getBoundingClientRect().top +
+      homeScroll.scrollTop
+    );
+  }
+
+  /** Which home panel is snapped / dominant from scroll position. */
+  function getActiveHomeSectionId() {
+    if (!homeScroll) {
+      return null;
+    }
+    var ids = ["section-about", "section-projects", "section-contact"];
+    var st = homeScroll.scrollTop;
+    var bestId = null;
+    var bestDist = Infinity;
+    for (var i = 0; i < ids.length; i++) {
+      var el = document.getElementById(ids[i]);
+      if (!el) {
+        continue;
+      }
+      var dist = Math.abs(sectionTopInHomeScroll(el) - st);
+      if (dist < bestDist) {
+        bestDist = dist;
+        bestId = ids[i];
+      }
+    }
+    return bestId;
+  }
+
+  function syncHomeUrlAndLogoFromScroll() {
+    if (!viewHome || !viewHome.classList.contains("view--active")) {
+      return;
+    }
+    if (programmaticHomeScroll) {
+      return;
+    }
+    var id = getActiveHomeSectionId();
+    if (!id) {
+      return;
+    }
+    var want = homeSectionIdToHash(id);
+    var route = parseHash();
+    if (route.name !== "home") {
+      return;
+    }
+    var have = homeRouteToHashString(route);
+    if (have === want) {
+      syncHeaderLogo(parseHash());
+      return;
+    }
+    var nextUrl = location.pathname + location.search + want;
+    history.replaceState(null, "", nextUrl);
+    syncHeaderLogo(parseHash());
+  }
+
+  function scheduleSyncHomeUrlFromScroll() {
+    if (!homeScroll || !viewHome.classList.contains("view--active")) {
+      return;
+    }
+    if (programmaticHomeScroll) {
+      return;
+    }
+    if (homeScrollHashTimer != null) {
+      window.clearTimeout(homeScrollHashTimer);
+    }
+    homeScrollHashTimer = window.setTimeout(function () {
+      homeScrollHashTimer = null;
+      syncHomeUrlAndLogoFromScroll();
+    }, 120);
+  }
+
+  function initHomeScrollHashSync() {
+    if (!homeScroll) {
+      return;
+    }
+    homeScroll.addEventListener("scroll", scheduleSyncHomeUrlFromScroll, {
+      passive: true,
+    });
+    homeScroll.addEventListener("scrollend", function () {
+      if (homeScrollHashTimer != null) {
+        window.clearTimeout(homeScrollHashTimer);
+        homeScrollHashTimer = null;
+      }
+      syncHomeUrlAndLogoFromScroll();
+    });
+  }
+
+  /** Small header logo: only on projects panel and project (Dictio) view. */
   function syncHeaderLogo(route) {
     var header = document.getElementById("site-header");
     if (!header) {
       return;
     }
-    var hideLogo =
-      route.name === "home" &&
-      (route.scroll === "section-about" || route.scroll === "section-contact");
-    header.classList.toggle("site-header--hide-logo", hideLogo);
+    var showSmallLogo =
+      route.name === "dictio" ||
+      (route.name === "home" && route.scroll === "section-projects");
+    header.classList.toggle("site-header--hide-logo", !showSmallLogo);
   }
 
   function closeProjectsNav() {
@@ -378,17 +505,26 @@
           scrollHomeTo(route.scroll);
         });
       } else if (homeScroll) {
+        programmaticHomeScroll = true;
         homeScroll.scrollTop = 0;
+        window.setTimeout(function () {
+          programmaticHomeScroll = false;
+          syncHomeUrlAndLogoFromScroll();
+        }, 80);
+      } else {
+        syncHomeUrlAndLogoFromScroll();
       }
     });
   }
 
   window.addEventListener("load", function () {
     initMobileNav();
+    initHomeScrollHashSync();
     initCloudLayerParallax();
     requestAnimationFrame(function () {
       initVantaOnce();
       applyRoute();
+      syncHomeUrlAndLogoFromScroll();
     });
   });
   window.addEventListener("hashchange", applyRoute);
