@@ -141,6 +141,7 @@ body {
   transform-origin: 50% 92%;
 }
 
+/* Floats above #stage; main content uses full viewport height underneath */
 .site-header {
   position: fixed;
   top: 0;
@@ -465,7 +466,7 @@ body.menu-open .site-drawer {
 
   /* Section padding −20%; body copy −30% (all home + project panels) */
   .panel {
-    padding: 3.2rem 2.4rem 4.8rem;
+    padding: 4rem 2.4rem;
   }
 
   .panel__inner {
@@ -473,7 +474,7 @@ body.menu-open .site-drawer {
   }
 
   .project-scroll {
-    padding: 2.4rem 2.4rem 4.8rem;
+    padding: calc(var(--header-h) + 2.4rem) 2.4rem 4.8rem;
   }
 
   .project-detail {
@@ -505,12 +506,10 @@ body.menu-open .site-drawer {
   }
 }
 
+/* Full viewport; .site-header is an overlay (not subtracted from height) */
 .stage {
   position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  top: var(--header-h);
+  inset: 0;
   z-index: 1;
   overflow-x: hidden;
   background: transparent;
@@ -543,13 +542,14 @@ body.menu-open .site-drawer {
 
 .panel {
   position: relative;
-  min-height: 100dvh;
-  min-height: 100vh;
+  /* One snap “screen” = full .stage / viewport height */
+  min-height: 100%;
   scroll-snap-align: start;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 4rem 3rem 6rem;
+  /* Symmetric vertical padding so flex cross-axis center isn’t biased */
+  padding: 5rem 3rem;
 }
 
 .panel__inner {
@@ -615,11 +615,6 @@ html.glass-variant-liquid .panel__inner::before {
 .panel__inner > * {
   position: relative;
   z-index: 1;
-}
-
-.panel--about .panel__inner {
-  margin-top: auto;
-  margin-bottom: auto;
 }
 
 /* Contact headline after logo — match section heading scale */
@@ -769,7 +764,8 @@ h3 {
   height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 3rem 3rem 6rem;
+  /* Header overlays full-height stage; keep copy below the bar */
+  padding: calc(var(--header-h) + 3rem) 3rem 6rem;
   max-width: 42rem;
   margin: 0 auto;
 }
@@ -969,7 +965,7 @@ html.glass-variant-liquid .project-detail::before {
 
 @media (max-width: 520px) {
   .panel {
-    padding: 2.56rem 1.92rem 3.84rem;
+    padding: 3.2rem 1.92rem;
   }
 
   .panel__inner {
@@ -977,7 +973,7 @@ html.glass-variant-liquid .project-detail::before {
   }
 
   .project-scroll {
-    padding: 1.92rem 1.92rem 3.84rem;
+    padding: calc(var(--header-h) + 1.92rem) 1.92rem 3.84rem;
   }
 
   .project-detail {
